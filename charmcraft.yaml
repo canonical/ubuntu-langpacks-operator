@@ -1,0 +1,64 @@
+name: ubuntu-langpacks
+type: charm
+title: Ubuntu Language packs builder charm
+summary: Language pack builder for Ubuntu.
+description: |
+  **Ubuntu Langpack Operator** is a [charm](https://juju.is/charms-architecture)
+  for building language packs for Ubuntu.
+
+
+links:
+  website:
+    - https://charmhub.io/ubuntu-langpacks
+  issues:
+    - https://github.com/canonical/ubuntu-langpacks-operator/issues
+  source:
+    - https://github.com/canonical/ubuntu-langpacks-operator
+
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+parts:
+  langpacks-charm:
+    source: .
+    plugin: uv
+    build-packages: [git]
+    build-snaps: [astral-uv]
+    override-build: |
+      craftctl default  # Run the default build steps.
+      git describe --always > $CRAFT_PART_INSTALL/version
+
+charm-libs:
+  - lib: operator_libs_linux.apt
+    version: "0"
+
+config:
+  options:
+    gpg-secret-id:
+        type: secret
+        description: the id of the gpg signing key secret
+
+actions:
+  build-langpacks:
+    description: |
+      Generate new language-packs for the specified release
+
+      If base is set to "true" it will create a new set of base packages,
+      otherwise build an update.
+    params:
+      release:
+        type: string
+        default: "devel"
+        description: |
+          The releases to build the language packs for.
+
+          Either a release name or "devel"
+      base:
+        type: boolean
+        default: False
+        description: Whether to generate new bases packages or not.
+  upload-langpacks:
+    description: |
+      Upload the locally build language-packs to the Ubuntu archive

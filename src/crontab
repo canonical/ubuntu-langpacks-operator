@@ -1,0 +1,8 @@
+# see https://documentation.ubuntu.com/launchpad/en/latest/reference/services/automatic-translations-export/
+
+# m h  dom mon dow   command
+30 10 * * 5 $HOME/langpack-o-matic/cron.daily bionic-updates
+30 10 * * 3 $HOME/langpack-o-matic/cron.daily focal-updates
+30 10 * * 2 $HOME/langpack-o-matic/cron.daily jammy-updates
+30 10 * * 7 $HOME/langpack-o-matic/cron.daily noble-updates
+30 10 * * 1 $HOME/langpack-o-matic/cron.daily questing
