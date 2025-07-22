@@ -4,12 +4,15 @@
 
 """A simple Launchpad client implementation."""
 
+import logging
 import os
 from abc import ABC
 from typing import Optional
 
 import httplib2
 from launchpadlib.launchpad import Launchpad
+
+logger = logging.getLogger(__name__)
 
 
 class LaunchpadClientBase(ABC):
@@ -25,11 +28,16 @@ class LaunchpadClient(LaunchpadClientBase):
 
     def active_series(self):
         """Return a list of the active ubuntu series."""
-        lp = Launchpad.login_anonymously(
-            "langpacks",
-            "production",
-            proxy_info=_proxy_config,
-        )
+        try:
+            lp = Launchpad.login_anonymously(
+                "langpacks",
+                "production",
+                proxy_info=_proxy_config,
+            )
+        except Exception as e:
+            logger.warning("Launchpad login failed: %s", e)
+            return []
+
         ubuntu = lp.distributions["ubuntu"]
 
         active_series = []
