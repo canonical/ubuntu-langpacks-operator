@@ -32,6 +32,7 @@ class LaunchpadClient(LaunchpadClientBase):
             lp = Launchpad.login_anonymously(
                 "langpacks",
                 "production",
+                proxy_info=_proxy_config,
             )
         except Exception as e:
             logger.warning("Launchpad login failed: %s", e)
@@ -55,3 +56,19 @@ class MockLaunchpadClient(LaunchpadClientBase):
         active_series = ["noble", "plucky", "questing"]
 
         return active_series
+
+
+def _proxy_config(method="https") -> Optional[httplib2.ProxyInfo]:
+    """Get charm proxy information from juju charm environment."""
+    if method not in ("http", "https"):
+        return
+
+    env_var = f"JUJU_CHARM_{method.upper()}_PROXY"
+    url = os.environ.get(env_var)
+
+    if not url:
+        return
+
+    noproxy = os.environ.get("JUJU_CHARM_NO_PROXY", None)
+
+    return httplib2.proxy_info_from_url(url, method, noproxy)

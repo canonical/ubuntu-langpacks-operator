@@ -12,7 +12,6 @@ from subprocess import PIPE, STDOUT, CalledProcessError, run
 import charms.operator_libs_linux.v0.apt as apt
 import requests
 from charms.operator_libs_linux.v0.apt import PackageError, PackageNotFoundError
-from git import GitCommandError, Repo
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +41,15 @@ class Langpacks:
     def __init__(self, launchpad_client):
         logger.debug("Langpacks class init")
         self.launchpad_client = launchpad_client
+        self.env = os.environ.copy()
+        juju_http_proxy = self.env.get("JUJU_CHARM_HTTP_PROXY")
+        juju_https_proxy = self.env.get("JUJU_CHARM_HTTPS_PROXY")
+        if juju_http_proxy:
+            logger.debug("Setting HTTP_PROXY env to %s", juju_http_proxy)
+            self.env['HTTP_PROXY'] = juju_http_proxy
+        if juju_https_proxy:
+            logger.debug("Setting HTTPS_PROXY env to %s", juju_https_proxy)
+            self.env['HTTPS_PROXY'] = juju_https_proxy
 
     def setup_crontab(self):
         """Configure the crontab for the service."""
@@ -60,26 +68,6 @@ class Langpacks:
             return
         except CalledProcessError as e:
             logger.debug("Installation of the crontab failed: '%s'", e.stdout)
-            raise
-
-    def _checkout_git(self, repo_url: str, clone_path: str):
-        """Check out a Git repository."""
-        logger.debug("Cloning repository from %s to %s", repo_url, clone_path)
-        try:
-            Repo.clone_from(repo_url, clone_path)
-        except GitCommandError as e:
-            logger.error("Error cloning repository: %s", e)
-            raise
-
-    def _update_git(self, repo_url: str, clone_path: str):
-        """Update a Git repository checkout."""
-        try:
-            repo = Repo(clone_path)
-            origin = repo.remotes.origin
-            origin.pull()
-            logger.debug("Repository updated.")
-        except GitCommandError as e:
-            logger.error("Error updating repository: %s", e)
             raise
 
     def install(self):
@@ -105,9 +93,24 @@ class Langpacks:
 
         # Clone the langpack-o-matic repo
         try:
-            self._checkout_git(REPO_URL, REPO_LOCATION)
+            run(
+                [
+                    "git",
+                    "clone",
+                    "-b",
+                    "master",
+                    REPO_URL,
+                    REPO_LOCATION,
+                ],
+                check=True,
+                stdout=PIPE,
+                stderr=STDOUT,
+                text=True,
+                env=self.env,
+            )
             logger.debug("Langpack-o-matic vcs cloned.")
-        except GitCommandError:
+        except CalledProcessError as e:
+            logger.debug("Git clone of the code failed: %s", e.stdout)
             raise
 
         # Create the build and log directories
@@ -122,9 +125,22 @@ class Langpacks:
     def update_checkout(self):
         """Update the langpack-o-matic checkout."""
         try:
-            self._update_git(REPO_URL, REPO_LOCATION)
+            run(
+                [
+                    "git",
+                    "-C",
+                    REPO_LOCATION,
+                    "pull",
+                ],
+                check=True,
+                stdout=PIPE,
+                stderr=STDOUT,
+                text=True,
+                env=self.env,
+            )
             logger.debug("Langpack-o-matic checkout updated.")
-        except GitCommandError:
+        except CalledProcessError as e:
+            logger.debug("Git pull of the langpack-o-matic repository failed: %s", e.stdout)
             raise
 
         # Call make target
