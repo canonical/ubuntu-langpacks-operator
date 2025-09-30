@@ -12,7 +12,6 @@ from unittest.mock import patch
 
 import pytest
 from charms.operator_libs_linux.v0.apt import PackageError, PackageNotFoundError
-from git import GitCommandError
 from ops.testing import (
     ActiveStatus,
     BlockedStatus,
@@ -50,7 +49,6 @@ def test_install_success(install_mock, ctx, base_state):
     [
         PackageError,
         PackageNotFoundError,
-        GitCommandError(command="git clone", status=128),
         CalledProcessError(1, "foo"),
     ],
 )
@@ -76,7 +74,6 @@ def test_upgrade_success(install_mock, ctx, base_state):
     [
         PackageError,
         PackageNotFoundError,
-        GitCommandError(command="git clone", status=128),
         CalledProcessError(1, "foo"),
     ],
 )
@@ -91,14 +88,14 @@ def test_upgrade_failure(mock, exception, ctx, base_state):
 @patch("charm.Langpacks.import_gpg_key")
 def test_config_changed_no_secret(import_gpg_key_mock, ctx, base_state):
     out = ctx.run(ctx.on.config_changed(), base_state)
-    assert out.unit_status == ActiveStatus("Signing disabled. Set the 'gpg-secret-id' to enable.")
+    assert out.unit_status == ActiveStatus("Signing disabled. Set the 'uploader-secret-id' to enable.")
 
 
 # needs to mock ops.SecretNotFoundError, ops.model.ModelError
 @patch("charm.Langpacks.import_gpg_key")
 def test_config_changed_secret_not_granted(import_gpg_key_mock, ctx, base_state):
     config_secret = Secret(tracked_content={"key": "GPG_PRIVATE_KEY"})
-    state = State(leader=True, config={"gpg-secret-id": config_secret.id})
+    state = State(leader=True, config={"uploader-secret-id": config_secret.id})
     out = ctx.run(ctx.on.config_changed(), state)
     assert out.unit_status == ActiveStatus("Secret not available. Check that access was granted.")
 
@@ -107,7 +104,7 @@ def test_config_changed_secret_not_granted(import_gpg_key_mock, ctx, base_state)
 def test_config_changed_import_key_failure(mock, ctx, base_state):
     mock.side_effect = CalledProcessError(1, "gpg")
     config_secret = Secret(tracked_content={"key": "GPG_PRIVATE_KEY"})
-    state = State(leader=True, secrets=[config_secret], config={"gpg-secret-id": config_secret.id})
+    state = State(leader=True, secrets=[config_secret], config={"uploader-secret-id": config_secret.id})
     out = ctx.run(ctx.on.config_changed(), state)
     assert out.unit_status == ActiveStatus(
         "Failed to import the signing key. Check `juju debug-log` for details."
@@ -117,7 +114,7 @@ def test_config_changed_import_key_failure(mock, ctx, base_state):
 @patch("charm.Langpacks.import_gpg_key")
 def test_config_changed(import_gpg_key_mock, ctx, base_state):
     config_secret = Secret(tracked_content={"key": "GPG_PRIVATE_KEY"})
-    state = State(leader=True, secrets=[config_secret], config={"gpg-secret-id": config_secret.id})
+    state = State(leader=True, secrets=[config_secret], config={"uploader-secret-id": config_secret.id})
     out = ctx.run(ctx.on.config_changed(), state)
     assert out.unit_status == ActiveStatus()
     assert import_gpg_key_mock.called
@@ -129,18 +126,6 @@ def test_start_success(update_checkout_mock, ctx, base_state):
     assert out.unit_status == ActiveStatus()
     assert update_checkout_mock.called
 
-
-@patch("charm.Langpacks.update_checkout")
-@pytest.mark.parametrize(
-    "exception",
-    [CalledProcessError(1, "git"), GitCommandError(command="git pull", status=128)],
-)
-def test_start_failure(mock, exception, ctx, base_state):
-    mock.side_effect = exception
-    out = ctx.run(ctx.on.start(), base_state)
-    assert out.unit_status == BlockedStatus(
-        "Failed to start services. Check `juju debug-log` for details."
-    )
 
 
 @patch("charm.Langpacks.build_langpacks")
@@ -188,7 +173,7 @@ def test_upload_langpacks_no_key(check_gpg_key_mock, ctx, base_state):
     out = ctx.run(ctx.on.action("upload-langpacks"), base_state)
     assert ctx.action_logs == ["Can't upload langpacks without a signing key"]
     assert out.unit_status == ActiveStatus(
-        "Upload disabled. Set and grant 'gpg-secret-id' to enable."
+        "Upload disabled. Set and grant 'uploader-secret-id' to enable."
     )
 
 
