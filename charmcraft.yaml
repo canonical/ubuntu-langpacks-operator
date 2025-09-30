@@ -36,9 +36,9 @@ charm-libs:
 
 config:
   options:
-    gpg-secret-id:
+    uploader-secret-id:
         type: secret
-        description: the id of the gpg signing key secret
+        description: the id of the langpacks uploader secret
 
 actions:
   build-langpacks:

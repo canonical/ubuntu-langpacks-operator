@@ -68,17 +68,18 @@ class UbuntuLangpacksCharm(ops.CharmBase):
         self.unit.status = ops.MaintenanceStatus("Importing signing key")
 
         try:
-            secret_id = self.config["gpg-secret-id"]
+            secret_id = self.config["uploader-secret-id"]
         except KeyError:
-            logger.warning("No 'gpg-secret-id' config, can't set up signing key")
+            logger.warning("No 'uploader-secret-id' config, can't set up signing key")
             self.unit.status = ops.ActiveStatus(
-                "Signing disabled. Set the 'gpg-secret-id' to enable."
+                "Signing disabled. Set the 'uploader-secret-id' to enable."
             )
             return
 
         try:
-            gpgkey: Secret = self.model.get_secret(id=secret_id)
-            keycontent = gpgkey.get_content().get("key")
+            uploader_secret: Secret = self.model.get_secret(id=secret_id)
+            gpgkey = uploader_secret.get_content().get("gpgkey")
+            logger.debug(gpgkey)
         except (ops.SecretNotFoundError, ops.model.ModelError):
             logger.warning("Signing key secret not found")
             self.unit.status = ops.ActiveStatus(
@@ -87,7 +88,7 @@ class UbuntuLangpacksCharm(ops.CharmBase):
             return
 
         try:
-            self._langpacks.import_gpg_key(keycontent)
+            self._langpacks.import_gpg_key(gpgkey)
         except CalledProcessError:
             self.unit.status = ops.ActiveStatus(
                 "Failed to import the signing key. Check `juju debug-log` for details."
@@ -105,7 +106,7 @@ class UbuntuLangpacksCharm(ops.CharmBase):
         self.unit.status = ops.MaintenanceStatus("Building langpacks")
 
         try:
-            event.log("Building langpacks, it may take a while")
+            event.log("Building langpacks,it may take a while")
             self._langpacks.build_langpacks(base, release)
         except (CalledProcessError, IOError, RequestException):
             event.log("Langpacks build failed")
@@ -123,7 +124,7 @@ class UbuntuLangpacksCharm(ops.CharmBase):
             event.log("Can't upload langpacks without a signing key")
             logger.warning("Can't upload langpacks without a signing key")
             self.unit.status = ops.ActiveStatus(
-                "Upload disabled. Set and grant 'gpg-secret-id' to enable."
+                "Upload disabled. Set and grant 'uploader-secret-id' to enable."
             )
             return
 

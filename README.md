@@ -39,10 +39,10 @@ $ juju add-secret langpack-gpg-key key#file=langpack.priv.asc
 $ juju grant-secret langpack-gpg-key ubuntu-langpacks
 ```
 
-There is a configuration option: `gpg-secret-id`, which you can set:
+There is a configuration option: `uploader-secret-id`, which you can set:
 
 ```bash
-❯ juju config ubuntu-langpacks gpg-secret-id=secret:SECRET_ID
+❯ juju config ubuntu-langpacks uploader-secret-id=secret:SECRET_ID
 ```
 
 where SECRET_ID is the ID of the juju secret.
