@@ -88,7 +88,9 @@ def test_upgrade_failure(mock, exception, ctx, base_state):
 @patch("charm.Langpacks.import_gpg_key")
 def test_config_changed_no_secret(import_gpg_key_mock, ctx, base_state):
     out = ctx.run(ctx.on.config_changed(), base_state)
-    assert out.unit_status == ActiveStatus("Signing disabled. Set the 'uploader-secret-id' to enable.")
+    assert out.unit_status == ActiveStatus(
+        "Signing disabled. Set the 'uploader-secret-id' to enable."
+    )
 
 
 # needs to mock ops.SecretNotFoundError, ops.model.ModelError
@@ -104,7 +106,11 @@ def test_config_changed_secret_not_granted(import_gpg_key_mock, ctx, base_state)
 def test_config_changed_import_key_failure(mock, ctx, base_state):
     mock.side_effect = CalledProcessError(1, "gpg")
     config_secret = Secret(tracked_content={"key": "GPG_PRIVATE_KEY"})
-    state = State(leader=True, secrets=[config_secret], config={"uploader-secret-id": config_secret.id})
+    state = State(
+        leader=True,
+        secrets=[config_secret],
+        config={"uploader-secret-id": config_secret.id},
+    )
     out = ctx.run(ctx.on.config_changed(), state)
     assert out.unit_status == ActiveStatus(
         "Failed to import the signing key. Check `juju debug-log` for details."
@@ -114,7 +120,11 @@ def test_config_changed_import_key_failure(mock, ctx, base_state):
 @patch("charm.Langpacks.import_gpg_key")
 def test_config_changed(import_gpg_key_mock, ctx, base_state):
     config_secret = Secret(tracked_content={"key": "GPG_PRIVATE_KEY"})
-    state = State(leader=True, secrets=[config_secret], config={"uploader-secret-id": config_secret.id})
+    state = State(
+        leader=True,
+        secrets=[config_secret],
+        config={"uploader-secret-id": config_secret.id},
+    )
     out = ctx.run(ctx.on.config_changed(), state)
     assert out.unit_status == ActiveStatus()
     assert import_gpg_key_mock.called
@@ -125,7 +135,6 @@ def test_start_success(update_checkout_mock, ctx, base_state):
     out = ctx.run(ctx.on.start(), base_state)
     assert out.unit_status == ActiveStatus()
     assert update_checkout_mock.called
-
 
 
 @patch("charm.Langpacks.build_langpacks")

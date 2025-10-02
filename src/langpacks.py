@@ -46,10 +46,10 @@ class Langpacks:
         juju_https_proxy = self.env.get("JUJU_CHARM_HTTPS_PROXY")
         if juju_http_proxy:
             logger.debug("Setting HTTP_PROXY env to %s", juju_http_proxy)
-            self.env['HTTP_PROXY'] = juju_http_proxy
+            self.env["HTTP_PROXY"] = juju_http_proxy
         if juju_https_proxy:
             logger.debug("Setting HTTPS_PROXY env to %s", juju_https_proxy)
-            self.env['HTTPS_PROXY'] = juju_https_proxy
+            self.env["HTTPS_PROXY"] = juju_https_proxy
 
     def setup_crontab(self):
         """Configure the crontab for the service."""
