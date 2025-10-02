@@ -106,7 +106,7 @@ class UbuntuLangpacksCharm(ops.CharmBase):
         self.unit.status = ops.MaintenanceStatus("Building langpacks")
 
         try:
-            event.log("Building langpacks,it may take a while")
+            event.log("Building langpacks, it may take a while")
             self._langpacks.build_langpacks(base, release)
         except (CalledProcessError, IOError, RequestException):
             event.log("Langpacks build failed")
