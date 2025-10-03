@@ -322,6 +322,17 @@ class Langpacks:
             raise
 
         if os.path.exists(sshfile):
+            try:
+                with open(sshfile, "r", encoding="utf-8") as f:
+                    currentssh = f.read()
+            except IOError as e:
+                logger.debug("Error reading existing ssh key: %s", e)
+                raise
+
+            if key == currentssh:
+                logger.debug("the ssh key didn't change")
+                return
+
             timestamp = time.strftime("%Y%m%d_%H%M%S")
             backupfile = f"{sshfile}.bak_{timestamp}"
 
