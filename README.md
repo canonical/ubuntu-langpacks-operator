@@ -33,9 +33,10 @@ Machine  State    Address        Inst id         Base          AZ  Message
 On first start up, the charm will install the application and setup a cronjob to build regular language packs updates for the supported Ubuntu series. 
 
 The charm relies on the launchpad ~langpack-uploader user's private gpg key to be provided as a secret.
+It is also possible to provide a private ssh key, which can be used for package uploads.
 
 ```
-$ juju add-secret langpack-gpg-key key#file=langpack.priv.asc
+$ juju add-secret langpack-gpg-key gpgkey#file=langpack.priv.asc sshkey=#file=id_ed25519
 $ juju grant-secret langpack-gpg-key ubuntu-langpacks
 ```
 
