@@ -39,13 +39,22 @@ $ juju add-secret langpack-gpg-key key#file=langpack.priv.asc
 $ juju grant-secret langpack-gpg-key ubuntu-langpacks
 ```
 
-There is a configuration option: `uploader-secret-id`, which you can set:
+There charm has those configuration options:
+
+`uploader-secret-id`, which you can set:
 
 ```bash
 ❯ juju config ubuntu-langpacks uploader-secret-id=secret:SECRET_ID
 ```
 
 where SECRET_ID is the ID of the juju secret.
+
+`dput-ng-config`, which is dput-ng configuration provided as a string:
+
+```bash
+❯ $ juju config ubuntu-langpacks 'dput-ng-config={ "default_host_main": "ubuntu", "login": "langpack-uploader", "method": "secure_sftp" }'
+```
+
 
 To build the langpacks, you can use the provided Juju [Action](https://documentation.ubuntu.com/juju/3.6/howto/manage-actions/):
 

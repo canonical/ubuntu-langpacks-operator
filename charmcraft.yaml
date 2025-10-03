@@ -39,6 +39,10 @@ config:
     uploader-secret-id:
         type: secret
         description: the id of the langpacks uploader secret
+    dput-ng-config:
+        type: string
+        description: an optional dput-ng configuration to use for uploads
+        default: ""
 
 actions:
   build-langpacks:

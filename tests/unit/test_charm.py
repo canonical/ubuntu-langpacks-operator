@@ -170,7 +170,29 @@ def test_config_changed_import_ssh_key_failure(mock_ssh, mock_gpg, ctx, base_sta
 
 @patch("charm.Langpacks.import_gpg_key")
 @patch("charm.Langpacks.import_ssh_key")
-def test_config_changed(import_gpg_key_mock, import_ssh_key_mock, ctx, base_state):
+@patch("charm.Langpacks.set_dput_config")
+def test_config_changed_set_dput_config_failure(mock_dput, mock_ssh, mock_gpg, ctx, base_state):
+    mock_gpg.return_value = True
+    mock_ssh.return_value = True
+    mock_dput.side_effect = IOError(1, "dputcfg")
+    config_secret = Secret(
+        tracked_content={"gpgkey": "GPG_PRIVATE_KEY", "sshkey": "SSH_PRIVATE_KEY"}
+    )
+    state = State(
+        leader=True,
+        secrets=[config_secret],
+        config={"uploader-secret-id": config_secret.id},
+    )
+    out = ctx.run(ctx.on.config_changed(), state)
+    assert out.unit_status == ActiveStatus(
+        "Failed to write dput config. Check `juju debug-log` for details."
+    )
+
+
+@patch("charm.Langpacks.import_gpg_key")
+@patch("charm.Langpacks.import_ssh_key")
+@patch("charm.Langpacks.set_dput_config")
+def test_config_changed(mock_dput, mock_ssh, mock_gpg, ctx, base_state):
     config_secret = Secret(
         tracked_content={"gpgkey": "GPG_PRIVATE_KEY", "sshkey": "SSH_PRIVATE_KEY"}
     )
@@ -181,8 +203,9 @@ def test_config_changed(import_gpg_key_mock, import_ssh_key_mock, ctx, base_stat
     )
     out = ctx.run(ctx.on.config_changed(), state)
     assert out.unit_status == ActiveStatus()
-    assert import_gpg_key_mock.called
-    assert import_ssh_key_mock.called
+    assert mock_gpg.called
+    assert mock_ssh.called
+    assert mock_dput.called
 
 
 @patch("charm.Langpacks.update_checkout")

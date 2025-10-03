@@ -100,6 +100,15 @@ class UbuntuLangpacksCharm(ops.CharmBase):
             )
             return
 
+        dputcfg = self.config["dput-ng-config"]
+        try:
+            self._langpacks.set_dput_config(dputcfg)
+        except IOError:
+            self.unit.status = ops.ActiveStatus(
+                "Failed to write dput config. Check `juju debug-log` for details."
+            )
+            return
+
         sshkey = uploader_secret.get_content().get("sshkey")
         if not sshkey:
             logger.warning("Uploader key secret not found")

@@ -24,7 +24,7 @@ PACKAGES = [
     "fakeroot",
     "python3-launchpadlib",
     "python3-apt",
-    "dput",
+    "dput-ng",
     "git",
     "devscripts",
     "lintian",
@@ -363,3 +363,22 @@ class Langpacks:
         except Exception as e:
             logger.debug("Listing available gpg keys failed: %s", e)
             return False
+
+    def set_dput_config(self, dputcfg: str):
+        """Write the dput configuration from the option."""
+        if not dputcfg:
+            logger.debug("No dput config to write")
+            return
+
+        try:
+            os.makedirs("/root/.dput.d/profiles", exist_ok=True)
+        except Exception as e:
+            logger.debug("Error creating /root/.dput.d/profiles: %s", e)
+            raise
+
+        try:
+            with open("/root/.dput.d/profiles/ubuntu.json", "w") as f:
+                f.write(dputcfg)
+        except IOError as e:
+            logger.debug("Error writing the dput configuration: %s", e)
+            raise
