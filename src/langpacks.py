@@ -28,6 +28,7 @@ PACKAGES = [
     "git",
     "devscripts",
     "lintian",
+    "corkscrew",
 ]
 
 BUILDDIR = Path("/app/build")
