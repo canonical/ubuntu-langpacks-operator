@@ -6,6 +6,7 @@
 import logging
 import os
 import shutil
+import time
 from pathlib import Path
 from subprocess import PIPE, STDOUT, CalledProcessError, run
 
@@ -309,6 +310,36 @@ class Langpacks:
         except CalledProcessError as e:
             logger.debug("Importing key failed: %s", e.stdout)
             raise
+
+    def import_ssh_key(self, key: str):
+        """Import the private ssh key."""
+        sshfile = "/root/.ssh/id_ed25519"
+
+        try:
+            os.makedirs("/root/.ssh", exist_ok=True)
+        except Exception as e:
+            logger.debug("Error creating /root/.ssh: %s", e)
+            raise
+
+        if os.path.exists(sshfile):
+            timestamp = time.strftime("%Y%m%d_%H%M%S")
+            backupfile = f"{sshfile}.bak_{timestamp}"
+
+            try:
+                os.rename(sshfile, backupfile)
+            except OSError as e:
+                logger.debug("Error renaming sshkey: %s", e)
+                raise
+
+        try:
+            fd = os.open(sshfile, os.O_CREAT | os.O_WRONLY | os.O_TRUNC, 0o600)
+            os.write(fd, key.encode("utf-8"))
+            os.close(fd)
+        except IOError as e:
+            logger.debug("Error creating sshkey: %s", e)
+            raise
+
+        logger.debug("SSH key imported")
 
     def check_gpg_key(self):
         """Check if a private gpg key is configured."""

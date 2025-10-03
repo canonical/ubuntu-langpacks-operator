@@ -78,15 +78,20 @@ class UbuntuLangpacksCharm(ops.CharmBase):
 
         try:
             uploader_secret: Secret = self.model.get_secret(id=secret_id)
-            gpgkey = uploader_secret.get_content().get("gpgkey")
-            logger.debug(gpgkey)
         except (ops.SecretNotFoundError, ops.model.ModelError):
-            logger.warning("Signing key secret not found")
+            logger.warning("Error getting secret")
             self.unit.status = ops.ActiveStatus(
                 "Secret not available. Check that access was granted."
             )
             return
 
+        gpgkey = uploader_secret.get_content().get("gpgkey")
+        if not gpgkey:
+            logger.warning("Signing key secret not found")
+            self.unit.status = ops.ActiveStatus(
+                "Secret not available. Check that the 'gpgkey' key exists."
+            )
+            return
         try:
             self._langpacks.import_gpg_key(gpgkey)
         except CalledProcessError:
@@ -95,7 +100,22 @@ class UbuntuLangpacksCharm(ops.CharmBase):
             )
             return
 
-        logger.debug("Signing key imported")
+        sshkey = uploader_secret.get_content().get("sshkey")
+        if not sshkey:
+            logger.warning("Uploader key secret not found")
+            self.unit.status = ops.ActiveStatus(
+                "Secret not available. Check that the 'sshkey' key exists."
+            )
+            return
+        try:
+            self._langpacks.import_ssh_key(sshkey)
+        except IOError:
+            self.unit.status = ops.ActiveStatus(
+                "Failed to import the uploader key. Check `juju debug-log` for details."
+            )
+            return
+
+        logger.debug("Signing and upload keys imported")
         self.unit.status = ops.ActiveStatus()
 
     def _on_build_langpacks(self, event: ops.ActionEvent):
