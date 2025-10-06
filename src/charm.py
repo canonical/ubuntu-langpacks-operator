@@ -27,6 +27,7 @@ class UbuntuLangpacksCharm(ops.CharmBase):
         self.framework.observe(self.on.install, self._on_install)
         self.framework.observe(self.on.upgrade_charm, self._on_install)
         self.framework.observe(self.on.config_changed, self._on_config_changed)
+        self.framework.observe(self.on.secret_changed, self._on_config_changed)
         self.framework.observe(self.on.build_langpacks_action, self._on_build_langpacks)
         self.framework.observe(self.on.upload_langpacks_action, self._on_upload_langpacks)
         self.framework.observe(self.on.stop, self._on_stop)
