@@ -78,7 +78,7 @@ class UbuntuLangpacksCharm(ops.CharmBase):
 
         try:
             uploader_secret: Secret = self.model.get_secret(id=secret_id)
-        except (ops.SecretNotFoundError, ops.model.ModelError):
+        except (ops.SecretNotFoundError, ops.model.ModelError, TypeError):
             logger.warning("Error getting secret")
             self.unit.status = ops.ActiveStatus(
                 "Secret not available. Check that access was granted."
