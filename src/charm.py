@@ -39,7 +39,8 @@ class UbuntuLangpacksCharm(ops.CharmBase):
         self.unit.status = ops.MaintenanceStatus("Updating langpack-o-matic checkout")
 
         try:
-            self._langpacks.update_checkout()
+            lpversion = self._langpacks.update_checkout()
+            self.unit.set_workload_version(lpversion)
         except CalledProcessError:
             self.unit.status = ops.BlockedStatus(
                 "Failed to start services. Check `juju debug-log` for details."

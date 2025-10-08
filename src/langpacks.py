@@ -141,6 +141,27 @@ class Langpacks:
                 env=self.env,
             )
             logger.debug("Langpack-o-matic checkout updated.")
+
+            result = run(
+                [
+                    "git",
+                    "-C",
+                    REPO_LOCATION,
+                    "describe",
+                    "--tags",
+                    "--always",
+                    "--dirty",
+                ],
+                check=True,
+                stdout=PIPE,
+                stderr=STDOUT,
+                text=True,
+                env=self.env,
+            )
+            workload_version = result.stdout.strip()
+            logger.debug("langpack-o-matic current revision: %s", workload_version)
+            return workload_version
+
         except CalledProcessError as e:
             logger.debug("Git pull of the langpack-o-matic repository failed: %s", e.stdout)
             raise

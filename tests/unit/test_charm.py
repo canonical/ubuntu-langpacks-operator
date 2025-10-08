@@ -219,8 +219,17 @@ def test_start_checkout_update_fail(update_checkout_mock, ctx, base_state):
 
 
 @patch("charm.Langpacks.update_checkout")
+def test_start_workload_version(update_checkout_mock, ctx, base_state):
+    update_checkout_mock.return_value = "123"
+    out = ctx.run(ctx.on.start(), base_state)
+    assert out.unit_status == ActiveStatus()
+    assert update_checkout_mock.called
+    assert out.workload_version == "123"
+
+
+@patch("charm.Langpacks.update_checkout")
 def test_start_success(update_checkout_mock, ctx, base_state):
-    update_checkout_mock.return_value = True
+    update_checkout_mock.return_value = "123"
     out = ctx.run(ctx.on.start(), base_state)
     assert out.unit_status == ActiveStatus()
     assert update_checkout_mock.called
