@@ -45,6 +45,7 @@ class LaunchpadClient(LaunchpadClientBase):
             if s.active:
                 active_series.append(s.name)
 
+        logger.debug("Launchpad active series: %s", active_series)
         return active_series
 
 
