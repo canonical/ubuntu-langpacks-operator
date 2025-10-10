@@ -44,14 +44,17 @@ class Langpacks:
         logger.debug("Langpacks class init")
         self.launchpad_client = launchpad_client
         self.env = os.environ.copy()
+        self.proxies = {}
         juju_http_proxy = self.env.get("JUJU_CHARM_HTTP_PROXY")
         juju_https_proxy = self.env.get("JUJU_CHARM_HTTPS_PROXY")
         if juju_http_proxy:
             logger.debug("Setting HTTP_PROXY env to %s", juju_http_proxy)
             self.env["HTTP_PROXY"] = juju_http_proxy
+            self.proxies["http"] = juju_http_proxy
         if juju_https_proxy:
             logger.debug("Setting HTTPS_PROXY env to %s", juju_https_proxy)
             self.env["HTTPS_PROXY"] = juju_https_proxy
+            self.proxies["https"] = juju_https_proxy
 
     def setup_crontab(self):
         """Configure the crontab for the service."""
@@ -198,7 +201,7 @@ class Langpacks:
 
     def _download_tarball(self, url: str, filename: Path):
         try:
-            with requests.get(url, stream=True, timeout=10) as r:
+            with requests.get(url, stream=True, timeout=10, proxies=self.proxies) as r:
                 r.raise_for_status()
 
                 with open(filename, "wb") as f:
