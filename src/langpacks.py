@@ -273,6 +273,7 @@ class Langpacks:
                     stdout=logfile,
                     stderr=STDOUT,
                     text=True,
+                    env=self.env,
                 )
             logger.debug("Translations packages prepared.")
         except Exception as e:
@@ -294,6 +295,7 @@ class Langpacks:
                     stdout=logfile,
                     stderr=STDOUT,
                     text=True,
+                    env=self.env,
                 )
             logger.debug("Language packs uploaded.")
         except CalledProcessError as e:
