@@ -5,4 +5,4 @@
 30 10 * * 3 $HOME/langpack-o-matic/cron.daily focal-updates
 30 10 * * 2 $HOME/langpack-o-matic/cron.daily jammy-updates
 30 10 * * 7 $HOME/langpack-o-matic/cron.daily noble-updates
-30 10 * * 1 $HOME/langpack-o-matic/cron.daily questing
+30 10 * * 6 $HOME/langpack-o-matic/cron.daily resolute
