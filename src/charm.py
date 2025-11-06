@@ -87,7 +87,7 @@ class UbuntuLangpacksCharm(ops.CharmBase):
             )
             return
 
-        gpgkey = uploader_secret.get_content().get("gpgkey")
+        gpgkey = uploader_secret.get_content(refresh=True).get("gpgkey")
         if not gpgkey:
             logger.warning("Signing key secret not found")
             self.unit.status = ops.ActiveStatus(
