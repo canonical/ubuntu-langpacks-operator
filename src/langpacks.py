@@ -67,7 +67,7 @@ class Langpacks:
                     )
                 if "https" in self.proxies:
                     crontab = crontab.replace(
-                        "# https_proxy=", "https_proxy=%s" % self.proxies["https"]
+                        "# https_proxy=", f"https_proxy={self.proxies['https']}"
                     )
         except IOError as e:
             logger.debug("Error reading crontab: %s", e)
