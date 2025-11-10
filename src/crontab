@@ -1,5 +1,7 @@
 # see https://documentation.ubuntu.com/launchpad/en/latest/reference/services/automatic-translations-export/
-
+# http_proxy=
+# https_proxy=
+#
 # m h  dom mon dow   command
 30 10 * * 5 $HOME/langpack-o-matic/cron.daily bionic-updates
 30 10 * * 3 $HOME/langpack-o-matic/cron.daily focal-updates

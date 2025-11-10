@@ -59,12 +59,27 @@ class Langpacks:
     def setup_crontab(self):
         """Configure the crontab for the service."""
         try:
+            with open("src/crontab", "r", encoding="utf-8") as f:
+                crontab = f.read()
+                if "http" in self.proxies:
+                    crontab = crontab.replace(
+                        "# http_proxy=", "http_proxy=%s" % self.proxies["http"]
+                    )
+                if "https" in self.proxies:
+                    crontab = crontab.replace(
+                        "# https_proxy=", "https_proxy=%s" % self.proxies["https"]
+                    )
+        except IOError as e:
+            logger.debug("Error reading crontab: %s", e)
+            raise
+
+        try:
             run(
                 [
                     "crontab",
-                    "src/crontab",
                 ],
                 check=True,
+                input=crontab,
                 stdout=PIPE,
                 stderr=STDOUT,
                 text=True,
