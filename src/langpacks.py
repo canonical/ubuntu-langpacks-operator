@@ -77,6 +77,7 @@ class Langpacks:
             run(
                 [
                     "crontab",
+                    "-",
                 ],
                 check=True,
                 input=crontab,
