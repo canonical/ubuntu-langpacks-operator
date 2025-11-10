@@ -54,7 +54,7 @@ class UbuntuLangpacksCharm(ops.CharmBase):
         self.unit.status = ops.MaintenanceStatus("Setting up environment")
         try:
             self._langpacks.install()
-        except (CalledProcessError, PackageError, PackageNotFoundError):
+        except (CalledProcessError, PackageError, PackageNotFoundError, IOError):
             self.unit.status = ops.BlockedStatus(
                 "Failed to set up the environment. Check `juju debug-log` for details."
             )
