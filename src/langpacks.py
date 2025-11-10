@@ -63,7 +63,7 @@ class Langpacks:
                 crontab = f.read()
                 if "http" in self.proxies:
                     crontab = crontab.replace(
-                        "# http_proxy=", "http_proxy=%s" % self.proxies["http"]
+                        "# http_proxy=", f"http_proxy={self.proxies['http']}"
                     )
                 if "https" in self.proxies:
                     crontab = crontab.replace(
