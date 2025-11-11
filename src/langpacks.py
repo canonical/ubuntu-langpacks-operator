@@ -428,15 +428,26 @@ class Langpacks:
             logger.debug("No dput config to write")
             return
 
+        dput_profiles_dir = Path("/root/.dput.d/profiles")
+        ubuntu_config = dput_profiles_dir / "ubuntu.json"
+        ppa_config = dput_profiles_dir / "ppa.json"
+
         try:
-            os.makedirs("/root/.dput.d/profiles", exist_ok=True)
+            os.makedirs(dput_profiles_dir, exist_ok=True)
         except Exception as e:
-            logger.debug("Error creating /root/.dput.d/profiles: %s", e)
+            logger.debug("Error creating dput profiles directory: %s", e)
             raise
 
         try:
-            with open("/root/.dput.d/profiles/ubuntu.json", "w") as f:
+            with open(ubuntu_config, "w") as f:
                 f.write(dputcfg)
         except IOError as e:
             logger.debug("Error writing the dput configuration: %s", e)
             raise
+
+        if not ppa_config.exists():
+            try:
+                os.symlink(ubuntu_config, ppa_config)
+            except Exception as e:
+                logger.debug("Error symlinking dput ppa configuration: %s", e)
+                raise
