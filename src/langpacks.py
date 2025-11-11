@@ -112,6 +112,10 @@ class Langpacks:
                 logger.error("Failed to install %s: %s", p, e)
                 raise
 
+        # do the following steps only once and not again on upgrades
+        if REPO_LOCATION.is_dir():
+            return
+
         # Clone the langpack-o-matic repo
         try:
             run(
