@@ -1,9 +1,9 @@
 [project]
 name = "ubuntu-langpacks-operator"
 version = "0.1.0"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 
-dependencies = ["launchpadlib", "ops", "requests", "httplib2>=0.31.2", "pysocks"]
+dependencies = ["charmlibs-apt~=1.0", "launchpadlib", "ops", "requests", "httplib2>=0.31.2", "pysocks"]
 
 [project.optional-dependencies]
 dev = [

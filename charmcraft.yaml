@@ -30,10 +30,6 @@ parts:
       craftctl default  # Run the default build steps.
       git describe --always > $CRAFT_PART_INSTALL/version
 
-charm-libs:
-  - lib: operator_libs_linux.apt
-    version: "0"
-
 config:
   options:
     uploader-secret-id:

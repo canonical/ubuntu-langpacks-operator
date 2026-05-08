@@ -8,7 +8,7 @@ import logging
 from subprocess import CalledProcessError
 
 import ops
-from charms.operator_libs_linux.v0.apt import PackageError, PackageNotFoundError
+from charmlibs.apt import PackageError, PackageNotFoundError
 from ops.model import Secret
 from requests.exceptions import RequestException
 

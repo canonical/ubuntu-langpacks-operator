@@ -10,9 +10,9 @@ import time
 from pathlib import Path
 from subprocess import PIPE, STDOUT, CalledProcessError, run
 
-import charms.operator_libs_linux.v0.apt as apt
 import requests
-from charms.operator_libs_linux.v0.apt import PackageError, PackageNotFoundError
+from charmlibs import apt
+from charmlibs.apt import PackageError, PackageNotFoundError
 
 logger = logging.getLogger(__name__)
 
