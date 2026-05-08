@@ -1,0 +1,12 @@
+name: Auto-Update Copilot Instructions
+# https://github.com/canonical/copilot-collections?tab=readme-ov-file#3-configure-auto-updates-ci
+on:
+  schedule:
+    - cron: '0 9 * * 0' # Run every Sunday at 09:00 UTC
+  workflow_dispatch:
+
+jobs:
+  check-update:
+    # Always pin to @main to get the latest logic, but the content version is controlled by your .yaml file
+    uses: canonical/copilot-collections/.github/workflows/auto_update_collections.yaml@main
+    secrets: inherit
