@@ -1,0 +1,90 @@
+name: Publish to edge
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  pack-charm:
+    name: Prepare charm for upload
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup LXD
+        uses: canonical/setup-lxd@8c6a87bfb56aa48f3fb9b830baa18562d8bfd4ee # v1
+
+      - name: Install charmcraft
+        run: sudo snap install charmcraft --classic
+
+      - name: Pack charm
+        run: charmcraft pack -v
+
+      - name: Upload charm artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v5
+        with:
+          name: charm
+          path: ./*.charm
+
+  define-matrix:
+    name: Define charms upload matrix
+    runs-on: ubuntu-24.04
+    needs:
+      - pack-charm
+    outputs:
+      charms: ${{ steps.charms.outputs.charms }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Download charm artifact(s)
+        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
+        with:
+          name: charm
+
+      - name: Generate matrix list
+        id: charms
+        run: |
+          list="$(ls *.charm | jq -r -ncR '[input]')"
+          echo "charms=$list"
+          echo "charms=$list" >> $GITHUB_OUTPUT
+
+  publish-to-edge:
+    name: Release to CharmHub
+    runs-on: ubuntu-24.04
+    needs:
+      - define-matrix
+    strategy:
+      matrix:
+        charm: ${{ fromJSON(needs.define-matrix.outputs.charms) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Select charmhub channel
+        id: channel
+        uses: canonical/charming-actions/channel@1753e0803f70445132e92acd45c905aba6473225 # 2.7.0
+
+      - name: Download charm artifact(s)
+        uses: actions/download-artifact@v8
+        with:
+          name: charm
+
+      - name: Upload charm to charmhub
+        uses: canonical/charming-actions/upload-charm@1753e0803f70445132e92acd45c905aba6473225 # 2.7.0
+        with:
+          credentials: "${{ secrets.CHARMHUB_TOKEN }}"
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          channel: "${{ steps.channel.outputs.name }}"
+          built-charm-path: "${{ matrix.charm }}"
