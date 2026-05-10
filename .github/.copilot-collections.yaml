@@ -1,6 +1,6 @@
 copilot:
   # A tag of https://github.com/canonical/copilot-collections/tags
-  version: "v0.11.0"
+  version: "v0.13.0"
   # The collections you want to install
   collections:
     - charm-python
