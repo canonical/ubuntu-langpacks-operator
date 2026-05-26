@@ -6,5 +6,9 @@ on:
 
 jobs:
   auto-update-libs:
+    permissions:
+      id-token: write
+      pull-requests: write
+      contents: write	
     uses: canonical/operator-workflows/.github/workflows/auto_update_charm_libs.yaml@main
     secrets: inherit
