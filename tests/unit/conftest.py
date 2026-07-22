@@ -1,4 +1,4 @@
-# Copyright 2025 Canonical
+# Copyright 2026 Canonical
 # See LICENSE file for licensing details.
 
 """Shared fixtures for the unit tests."""
