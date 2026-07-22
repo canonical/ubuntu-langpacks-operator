@@ -35,12 +35,14 @@ def base_state(ctx):
     return State(leader=True)
 
 
+@patch("charm.Langpacks.setup_crontab")
 @patch("charm.Langpacks.install")
-def test_install_success(install_mock, ctx, base_state):
+def test_install_success(install_mock, setup_crontab_mock, ctx, base_state):
     install_mock.return_value = True
     out = ctx.run(ctx.on.install(), base_state)
     assert out.unit_status == ActiveStatus("")
     assert install_mock.called
+    assert setup_crontab_mock.called
 
 
 @patch("charm.Langpacks.install")
@@ -60,12 +62,14 @@ def test_install_failure(mock, exception, ctx, base_state):
     )
 
 
+@patch("charm.Langpacks.setup_crontab")
 @patch("charm.Langpacks.install")
-def test_upgrade_success(install_mock, ctx, base_state):
+def test_upgrade_success(install_mock, setup_crontab_mock, ctx, base_state):
     install_mock.return_value = True
     out = ctx.run(ctx.on.upgrade_charm(), base_state)
     assert out.unit_status == ActiveStatus("")
     assert install_mock.called
+    assert setup_crontab_mock.called
 
 
 @patch("charm.Langpacks.install")
