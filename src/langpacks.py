@@ -183,7 +183,6 @@ class Langpacks:
             )
             workload_version = result.stdout.strip()
             logger.debug("langpack-o-matic current revision: %s", workload_version)
-            return workload_version
 
         except CalledProcessError as e:
             logger.debug("Git pull of the langpack-o-matic repository failed: %s", e.stdout)
@@ -206,6 +205,8 @@ class Langpacks:
         except CalledProcessError as e:
             logger.debug("Build of bin/msgequal failed %s", e.stdout)
             raise
+
+        return workload_version
 
     def _clean_builddir(self, releasedir: Path):
         """Clean build cache."""
